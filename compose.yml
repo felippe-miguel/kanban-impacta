@@ -14,7 +14,7 @@ services:
     depends_on:
       - mysql
     environment:
-      - DB_HOST=mysql
+      - DB_HOST=laravel-mysql
       - DB_DATABASE=laravel
       - DB_USERNAME=laravel
       - DB_PASSWORD=secret
