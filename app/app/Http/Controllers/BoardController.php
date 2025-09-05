@@ -31,6 +31,9 @@ class BoardController extends Controller
 
     public function destroy($id)
     {
-        return response()->json(['message' => "Deleting board with ID: $id"]);
+        $board = Board::findOrFail($id);
+        $board->delete();
+
+        return redirect()->route('boards.index')->with('success', 'Board deleted successfully.');
     }
 }
