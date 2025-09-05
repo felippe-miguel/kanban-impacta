@@ -11,7 +11,7 @@ class BoardController extends Controller
     public function index()
     {
         $boards = Board::all();
-        return BoardResource::collection($boards);
+        return view('boards.index', ['boards' => BoardResource::collection($boards)]);
     }
 
     public function store(Request $request)
