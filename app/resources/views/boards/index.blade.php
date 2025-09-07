@@ -20,14 +20,32 @@
                     <td>{{ $board->title }}</td>
                     <td>{{ $board->created_at }}</td>
                     <td>
-                        <form action="boards/{{ $board->id }}" method="POST" style="display:inline-block;">
+                        <form id="delete-form-{{ $board->id }}" action="boards/{{ $board->id }}" method="POST" style="display:inline-block;">
                             @csrf
                             @method('DELETE')
-                            <button type="submit" class="btn btn-danger btn-sm" onclick="return confirm('Tem certeza que deseja deletar este board?')">Deletar</button>
                         </form>
+                        <button class="btn btn-danger btn-sm" onclick="confirmDelete({{ $board->id }})">Deletar</button>
                     </td>
                 </tr>
             @endforeach
         </tbody>
     </table>
+
+    <script>
+        function confirmDelete(id) {
+            Swal.fire({
+                title: 'Tem certeza?',
+                text: "Essa ação não pode ser desfeita!",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#d33',
+                cancelButtonColor: '#3085d6',
+                confirmButtonText: 'Sim, deletar!'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    document.getElementById(`delete-form-${id}`).submit();
+                }
+            });
+        }
+    </script>
 @endsection
