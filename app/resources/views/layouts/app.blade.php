@@ -7,7 +7,6 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@sweetalert2/theme-dark@5/dark.css">
-
     <style>
         body {
             background-color: #282a36;
@@ -17,12 +16,14 @@
             background-color: #21222c;
             color: #e0e0e0;
         }
-        .table th, .table td {
+        .table th,
+        .table td {
             background-color: #21222c;
             border-color: #333;
             color: #e0e0e0;
         }
-        .modal-header, .modal-footer {
+        .modal-header,
+        .modal-footer {
             border-color: #333;
         }
         .btn-danger {
@@ -33,10 +34,32 @@
             background-color: #e74c3c;
             border-color: #e74c3c;
         }
-        tbody, td, tfoot, th, thead, tr {
+        tbody,
+        td,
+        tfoot,
+        th,
+        thead,
+        tr {
             border-color: #333;
             border-style: solid;
             border-width: 0;
+        }
+
+        .btn-primary {
+            --bs-btn-color: #fff !important;
+            --bs-btn-bg: #7066e0 !important;
+            --bs-btn-border-color: #7066e0 !important;
+            --bs-btn-hover-color: #fff !important;
+            --bs-btn-hover-bg: #5d55b6 !important;
+            --bs-btn-hover-border-color: #5d55b6 !important;
+            --bs-btn-focus-shadow-rgb: 49, 132, 253 !important;
+            --bs-btn-active-color: #fff !important;
+            --bs-btn-active-bg: #7066e0 !important;
+            --bs-btn-active-border-color: #7066e0 !important;
+            --bs-btn-active-shadow: inset 0 3px 5px rgba(0, 0, 0, 0.125) !important;
+            --bs-btn-disabled-color: #fff !important;
+            --bs-btn-disabled-bg: #7066e0 !important;
+            --bs-btn-disabled-border-color: #7066e0 !important;
         }
     </style>
 </head>
