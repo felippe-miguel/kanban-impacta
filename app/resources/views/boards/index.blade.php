@@ -1,10 +1,10 @@
 @extends('layouts.app')
 
-@section('title', 'Lista de Boards')
+@section('title', 'Lista de quadros')
 
 @section('content')
-    <h1>Boards Cadastrados</h1>
-    <button class="btn btn-primary mb-3 float-end" onclick="openAddBoardModal()">Adicionar Novo Board</button>
+    <h1>Quadros Cadastrados</h1>
+    <button class="btn btn-primary mb-3 float-end" onclick="openAddBoardModal()">Adicionar Novo Quadro</button>
     <table class="table table-bordered mt-3">
         <thead>
             <tr>
@@ -39,12 +39,12 @@
                         @csrf
                         <div class="modal-content bg-dark text-light">
                             <div class="modal-header">
-                                <h5 class="modal-title" id="addBoardModalLabel">Adicionar Novo Board</h5>
+                                <h5 class="modal-title" id="addBoardModalLabel">Adicionar Novo Quadro</h5>
                                 <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
                             </div>
                             <div class="modal-body">
                                 <div class="mb-3">
-                                    <label for="board-title" class="form-label">Título do Board</label>
+                                    <label for="board-title" class="form-label">Título do Quadro</label>
                                     <input type="text" class="form-control" id="board-title" name="title" required>
                                 </div>
                             </div>

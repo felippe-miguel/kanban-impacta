@@ -24,7 +24,7 @@ class BoardController extends Controller
             'title' => $request->input('title'),
         ]);
 
-        return redirect()->route('boards.index')->with('success', 'Board created successfully.');
+        return redirect()->route('boards.index')->with('success', 'Quadro criado com sucesso.');
     }
 
     public function show($id)
@@ -42,6 +42,6 @@ class BoardController extends Controller
         $board = Board::findOrFail($id);
         $board->delete();
 
-        return redirect()->route('boards.index')->with('success', 'Board deleted successfully.');
+        return redirect()->route('boards.index')->with('success', 'Quadro deletado com sucesso.');
     }
 }
