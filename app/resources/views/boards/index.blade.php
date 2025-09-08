@@ -21,6 +21,7 @@
                     <td>{{ $board->title }}</td>
                     <td>{{ $board->created_at }}</td>
                     <td>
+                        <a href="boards/{{ $board->id }}" class="btn btn-primary btn-sm" >Visualizar</a>
                         <form id="delete-form-{{ $board->id }}" action="boards/{{ $board->id }}" method="POST" style="display:inline-block;">
                             @csrf
                             @method('DELETE')
