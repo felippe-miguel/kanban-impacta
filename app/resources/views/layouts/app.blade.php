@@ -22,6 +22,9 @@
             border-color: #333;
             color: #e0e0e0;
         }
+        .modal-header, .modal-footer {
+            border-color: #333;
+        }
         .btn-danger {
             background-color: #c0392b;
             border-color: #c0392b;

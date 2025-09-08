@@ -4,6 +4,7 @@
 
 @section('content')
     <h1>Boards Cadastrados</h1>
+    <button class="btn btn-primary mb-3 float-end" onclick="openAddBoardModal()">Adicionar Novo Board</button>
     <table class="table table-bordered mt-3">
         <thead>
             <tr>
@@ -31,21 +32,52 @@
         </tbody>
     </table>
 
-    <script>
-        function confirmDelete(id) {
-            Swal.fire({
-                title: 'Tem certeza?',
-                text: "Essa ação não pode ser desfeita!",
-                icon: 'warning',
-                showCancelButton: true,
-                confirmButtonColor: '#d33',
-                cancelButtonColor: '#3085d6',
-                confirmButtonText: 'Sim, deletar!'
-            }).then((result) => {
-                if (result.isConfirmed) {
-                    document.getElementById(`delete-form-${id}`).submit();
-                }
-            });
-        }
-    </script>
+        <!-- Modal Adicionar Board -->
+        <div class="modal fade" id="addBoardModal" tabindex="-1" aria-labelledby="addBoardModalLabel" aria-hidden="true">
+            <div class="modal-dialog">
+                <form id="add-board-form" action="/boards" method="POST">
+                        @csrf
+                        <div class="modal-content bg-dark text-light">
+                            <div class="modal-header">
+                                <h5 class="modal-title" id="addBoardModalLabel">Adicionar Novo Board</h5>
+                                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                            </div>
+                            <div class="modal-body">
+                                <div class="mb-3">
+                                    <label for="board-title" class="form-label">Título do Board</label>
+                                    <input type="text" class="form-control" id="board-title" name="title" required>
+                                </div>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                                <button type="submit" class="btn btn-primary">Criar</button>
+                            </div>
+                        </div>
+                </form>
+            </div>
+        </div>
+
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+        <script>
+            function confirmDelete(id) {
+                Swal.fire({
+                    title: 'Tem certeza?',
+                    text: "Essa ação não pode ser desfeita!",
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonColor: '#d33',
+                    cancelButtonColor: '#3085d6',
+                    confirmButtonText: 'Sim, deletar!'
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        document.getElementById(`delete-form-${id}`).submit();
+                    }
+                });
+            }
+
+            function openAddBoardModal() {
+                var modal = new bootstrap.Modal(document.getElementById('addBoardModal'));
+                modal.show();
+            }
+        </script>
 @endsection
