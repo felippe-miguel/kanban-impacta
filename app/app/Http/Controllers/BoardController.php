@@ -16,7 +16,15 @@ class BoardController extends Controller
 
     public function store(Request $request)
     {
-        return response()->json(['message' => 'Board created']);
+        $request->validate([
+            'title' => 'required|string|max:255',
+        ]);
+
+        Board::create([
+            'title' => $request->input('title'),
+        ]);
+
+        return redirect()->route('boards.index')->with('success', 'Board created successfully.');
     }
 
     public function show($id)
