@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Board;
+use App\Models\Column;
 use Illuminate\Http\Request;
 
 class ColumnController extends Controller
@@ -11,9 +13,18 @@ class ColumnController extends Controller
         return response()->json(['message' => "Listing all columns"]);
     }
 
-    public function store(Request $request)
+    public function store(Request $request, $boardId)
     {
-        return response()->json(['message' => "Storing new column"]);
+        Column::create([
+            'title' => $request->input('title'),
+            'board_id' => $boardId,
+        ]);
+
+        $board = Board::findOrFail($boardId);
+
+        $columns = $board->columns()->with('cards')->get();
+
+        return redirect()->route('boards.show', compact('board', 'columns'))->with('success', 'Coluna criada com sucesso.');
     }
 
     public function show($id)
@@ -26,8 +37,13 @@ class ColumnController extends Controller
         return response()->json(['message' => "Updating column with ID: $id"]);
     }
 
-    public function destroy($id)
+    public function destroy($boardId, $columnId)
     {
-        return response()->json(['message' => "Deleting column with ID: $id"]);
+        $column = Column::findOrFail($columnId);
+        $board = Board::findOrFail($boardId);
+        $columns = $board->columns()->with('cards')->get();
+        $column->delete();
+
+        return redirect()->route('boards.show', compact('board', 'columns'))->with('success', 'Coluna deletada com sucesso.');
     }
 }
