@@ -70,6 +70,11 @@
             --bs-btn-disabled-bg: #7066e0 !important;
             --bs-btn-disabled-border-color: #7066e0 !important;
         }
+
+        .table td.fit, .table th.fit {
+            white-space: nowrap;
+            width: 1%;
+        }
     </style>
 </head>
 <body>

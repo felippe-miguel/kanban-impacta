@@ -10,8 +10,8 @@
             <tr>
                 <th>ID</th>
                 <th>Título</th>
-                <th>Criado em</th>
-                <th>Ações</th>
+                <th class="fit">Criado em</th>
+                <th class="fit">Ações</th>
             </tr>
         </thead>
         <tbody>
@@ -19,8 +19,8 @@
                 <tr>
                     <td>{{ $board->id }}</td>
                     <td>{{ $board->title }}</td>
-                    <td>{{ $board->created_at }}</td>
-                    <td>
+                    <td class="fit">{{ $board->created_at }}</td>
+                    <td class="fit">
                         <a href="boards/{{ $board->id }}" class="btn btn-primary btn-sm" >Visualizar</a>
                         <form id="delete-form-{{ $board->id }}" action="boards/{{ $board->id }}" method="POST" style="display:inline-block;">
                             @csrf
