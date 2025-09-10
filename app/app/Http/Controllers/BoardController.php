@@ -20,16 +20,22 @@ class BoardController extends Controller
             'title' => 'required|string|max:255',
         ]);
 
-        Board::create([
+        $board = Board::create([
             'title' => $request->input('title'),
         ]);
+
+        $board->columns()->create(['title' => 'To Do']);
+        $board->columns()->create(['title' => 'In Progress']);
+        $board->columns()->create(['title' => 'Done']);
 
         return redirect()->route('boards.index')->with('success', 'Quadro criado com sucesso.');
     }
 
     public function show($id)
     {
-        return response()->json(['message' => "Showing board with ID: $id"]);
+        $board = Board::findOrFail($id);
+        $columns = $board->columns()->with('cards')->get();
+        return view('boards.show', compact('board', 'columns'));
     }
 
     public function update(Request $request, $id)
