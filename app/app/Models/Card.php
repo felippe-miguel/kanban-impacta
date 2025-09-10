@@ -12,4 +12,9 @@ class Card extends Model
     {
         return date('d/m/Y H:i:s', strtotime($value));
     }
+
+    public function column()
+    {
+        return $this->belongsTo(Column::class);
+    }
 }

@@ -12,4 +12,9 @@ class Board extends Model
     {
         return date('d/m/Y H:i:s', strtotime($value));
     }
+
+    public function columns()
+    {
+        return $this->hasMany(Column::class);
+    }
 }

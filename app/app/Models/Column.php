@@ -12,4 +12,14 @@ class Column extends Model
     {
         return date('d/m/Y H:i:s', strtotime($value));
     }
+
+    public function board()
+    {
+        return $this->belongsTo(Board::class);
+    }
+
+    public function cards()
+    {
+        return $this->hasMany(Card::class);
+    }
 }
