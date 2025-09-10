@@ -12,6 +12,15 @@
             background-color: #282a36;
             color: #e0e0e0;
         }
+        .bg-default {
+            background-color: #212529;
+            color: #e0e0e0;
+        }
+
+        .bg-default:hover {
+            background-color: #2c2f41;
+            color: #e0e0e0;
+        }
         .table {
             background-color: #21222c;
             color: #e0e0e0;
