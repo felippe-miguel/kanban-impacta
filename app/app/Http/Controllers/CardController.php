@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Board;
+use App\Models\Card;
 use Illuminate\Http\Request;
 
 class CardController extends Controller
@@ -11,9 +13,21 @@ class CardController extends Controller
         return response()->json(['message' => "Listing all cards"]);
     }
 
-    public function store(Request $request)
+    public function store(Request $request, $boardId)
     {
-        return response()->json(['message' => "Storing new card"]);
+        Card::create([
+            'title' => $request->input('title'),
+            'description' => $request->input('description'),
+            'column_id' => $request->input('column_id'),
+        ]);
+
+        $board = Board::findOrFail($boardId);
+
+        $columns = $board->columns()->with('cards')->get();
+
+        return redirect()
+            ->route('boards.show', compact('board', 'columns'))
+            ->with('success', 'Card criado com sucesso.');
     }
 
     public function show($id)
@@ -26,8 +40,15 @@ class CardController extends Controller
         return response()->json(['message' => "Updating card with ID: $id"]);
     }
 
-    public function destroy($id)
+    public function destroy($boardId, $cardId)
     {
-        return response()->json(['message' => "Deleting card with ID: $id"]);
+        $card = Card::findOrFail($cardId);
+        $board = Board::findOrFail($boardId);
+        $columns = $board->columns()->with('cards')->get();
+        $card->delete();
+
+        return redirect()
+            ->route('boards.show', compact('board', 'columns'))
+            ->with('success', 'Card deletado com sucesso.');
     }
 }
