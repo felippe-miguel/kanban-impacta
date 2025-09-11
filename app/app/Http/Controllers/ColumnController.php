@@ -24,7 +24,9 @@ class ColumnController extends Controller
 
         $columns = $board->columns()->with('cards')->get();
 
-        return redirect()->route('boards.show', compact('board', 'columns'))->with('success', 'Coluna criada com sucesso.');
+        return redirect()
+            ->route('boards.show', compact('board', 'columns'))
+            ->with('success', 'Coluna criada com sucesso.');
     }
 
     public function show($id)
@@ -44,6 +46,8 @@ class ColumnController extends Controller
         $columns = $board->columns()->with('cards')->get();
         $column->delete();
 
-        return redirect()->route('boards.show', compact('board', 'columns'))->with('success', 'Coluna deletada com sucesso.');
+        return redirect()
+            ->route('boards.show', compact('board', 'columns'))
+            ->with('success', 'Coluna deletada com sucesso.');
     }
 }
