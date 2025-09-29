@@ -10,7 +10,7 @@
 
     <div class="kanban-board container" style="gap: 20px;">
         @foreach ($columns as $column)
-            <div class="col kanban-column bg-dark p-3 rounded position-relative" style="min-width: 250px;">
+            <div class="col kanban-column bg-dark p-3 rounded position-relative" style="min-width: 250px;" data-column-id="{{ $column->id }}">
                 <div class="d-flex justify-content-between align-items-center mb-2">
                     <h4 class="text-light mb-0">{{ $column->title }}</h4>
                     <div class="dropdown">
@@ -28,9 +28,9 @@
                         </ul>
                     </div>
                 </div>
-                <div class="kanban-cards">
+                <div class="kanban-cards" data-column-id="{{ $column->id }}">
                     @foreach ($column->cards as $card)
-                        <div class="card mb-2 text-light">
+                        <div class="card mb-2 text-light" draggable="true" data-card-id="{{ $card->id }}" data-column-id="{{ $column->id }}">
                             <div class="card-body">
                                 <div class="card-title d-flex justify-content-between align-items-center">
                                     <strong>{{ $card->title }}</strong>
@@ -126,18 +126,65 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/js/all.min.js" crossorigin="anonymous"></script>
 
     <script>
-        function openAddColumnModal() {
+        document.addEventListener('DOMContentLoaded', function () {
+            let draggedCard = null;
+            let sourceColumnId = null;
+
+            document.querySelectorAll('.card[draggable="true"]').forEach(card => {
+                card.addEventListener('dragstart', function (e) {
+                    draggedCard = this;
+                    sourceColumnId = this.getAttribute('data-column-id');
+                    e.dataTransfer.effectAllowed = 'move';
+                    e.dataTransfer.setData('text/plain', this.getAttribute('data-card-id'));
+                    setTimeout(() => this.classList.add('opacity-50'), 0);
+                });
+                card.addEventListener('dragend', function () {
+                    this.classList.remove('opacity-50');
+                });
+            });
+
+            document.querySelectorAll('.kanban-cards').forEach(column => {
+                column.addEventListener('dragover', function (e) {
+                    e.preventDefault();
+                    this.classList.add('border-primary');
+                });
+                column.addEventListener('dragleave', function () {
+                    this.classList.remove('border-primary');
+                });
+                column.addEventListener('drop', function (e) {
+                    e.preventDefault();
+                    this.classList.remove('border-primary');
+                    if (draggedCard && this !== draggedCard.parentNode) {
+                        this.insertBefore(draggedCard, this.firstChild);
+                        const cardId = draggedCard.getAttribute('data-card-id');
+                        const newColumnId = this.closest('.kanban-column').getAttribute('data-column-id') || this.parentNode.getAttribute('data-column-id');
+                        console.log(`Card ${cardId} movido para a coluna ${newColumnId}`);
+                        if (cardId && newColumnId) {
+                            fetch(`/api/cards/${cardId}`, {
+                                method: 'PUT',
+                                headers: {
+                                    'Content-Type': 'application/json',
+                                    'X-CSRF-TOKEN': document.querySelector('input[name="_token"]').value
+                                },
+                                body: JSON.stringify({ column_id: newColumnId })
+                            });
+                        }
+                    }
+                });
+            });
+        });
+    function openAddColumnModal() {
             var modal = new bootstrap.Modal(document.getElementById('addColumnModal'));
             modal.show();
         }
 
-        function openAddCardModal(columnId) {
+    function openAddCardModal(columnId) {
             document.getElementById('card_column_id').value = columnId;
             var modal = new bootstrap.Modal(document.getElementById('addCardModal'));
             modal.show();
         }
 
-        function confirmDeleteColumn(columnId) {
+    function confirmDeleteColumn(columnId) {
             Swal.fire({
                 title: 'Tem certeza?',
                 text: 'Essa ação irá deletar a coluna e todos os cards nela!',
@@ -154,7 +201,7 @@
             });
         }
 
-        function confirmDeleteCard(cardId) {
+    function confirmDeleteCard(cardId) {
             Swal.fire({
                 title: 'Tem certeza?',
                 text: 'Essa ação é irreversível!',
@@ -171,11 +218,17 @@
             });
         }
 
-        function backToBoards() {
+    function backToBoards() {
             window.location.href = "{{ route('boards.index') }}";
         }
     </script>
     <style>
+        .opacity-50 {
+            opacity: 0.5;
+        }
+        .border-primary {
+            border: 2px dashed #7066e0 !important;
+        }
         .card-title {
             padding: 0.5rem 1rem;
             margin: 0;

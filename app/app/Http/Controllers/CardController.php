@@ -37,7 +37,17 @@ class CardController extends Controller
 
     public function update(Request $request, $id)
     {
-        return response()->json(['message' => "Updating card with ID: $id"]);
+        $request->validate([
+            'title' => 'sometimes|string|max:255',
+            'description' => 'sometimes|string',
+            'column_id' => 'sometimes|exists:columns,id',
+        ]);
+
+        $card = Card::findOrFail($id);
+
+        $card->update($request->only(['title', 'description', 'column_id']));
+
+        return response()->json(['message' => "Card with ID: $id updated successfully"]);
     }
 
     public function destroy($boardId, $cardId)
