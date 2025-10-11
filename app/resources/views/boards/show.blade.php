@@ -30,7 +30,7 @@
                 </div>
                 <div class="kanban-cards" data-column-id="{{ $column->id }}">
                     @foreach ($column->cards as $card)
-                        <div class="card mb-2 text-light" draggable="true" data-card-id="{{ $card->id }}" data-column-id="{{ $column->id }}">
+                        <div class="card mb-2 text-light" draggable="true" data-card-id="{{ $card->id }}" data-column-id="{{ $column->id }}" onclick="showCardModal(`{{ addslashes($card->title) }}`, `{{ addslashes($card->description) }}`)">
                             <div class="card-body">
                                 <div class="card-title d-flex justify-content-between align-items-center">
                                     <strong>{{ $card->title }}</strong>
@@ -122,6 +122,25 @@
         </div>
     </div>
 
+    <!-- Modal Exibir Card -->
+    <div class="modal fade" id="showCardModal" tabindex="-1" aria-labelledby="showCardModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content bg-dark text-light">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="showCardModalLabel">Detalhes do Card</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <h4 id="modal-card-title"></h4>
+                    <p id="modal-card-description"></p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fechar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/js/all.min.js" crossorigin="anonymous"></script>
 
@@ -173,18 +192,19 @@
                 });
             });
         });
-    function openAddColumnModal() {
+
+        function openAddColumnModal() {
             var modal = new bootstrap.Modal(document.getElementById('addColumnModal'));
             modal.show();
         }
 
-    function openAddCardModal(columnId) {
+        function openAddCardModal(columnId) {
             document.getElementById('card_column_id').value = columnId;
             var modal = new bootstrap.Modal(document.getElementById('addCardModal'));
             modal.show();
         }
 
-    function confirmDeleteColumn(columnId) {
+        function confirmDeleteColumn(columnId) {
             Swal.fire({
                 title: 'Tem certeza?',
                 text: 'Essa ação irá deletar a coluna e todos os cards nela!',
@@ -201,7 +221,7 @@
             });
         }
 
-    function confirmDeleteCard(cardId) {
+        function confirmDeleteCard(cardId) {
             Swal.fire({
                 title: 'Tem certeza?',
                 text: 'Essa ação é irreversível!',
@@ -218,8 +238,15 @@
             });
         }
 
-    function backToBoards() {
+        function backToBoards() {
             window.location.href = "{{ route('boards.index') }}";
+        }
+
+        function showCardModal(title, description) {
+            document.getElementById('modal-card-title').textContent = title;
+            document.getElementById('modal-card-description').textContent = description || '';
+            var modal = new bootstrap.Modal(document.getElementById('showCardModal'));
+            modal.show();
         }
     </script>
     <style>
