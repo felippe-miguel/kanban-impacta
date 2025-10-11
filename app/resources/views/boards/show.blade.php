@@ -138,6 +138,10 @@
                         <textarea class="form-control" id="comment-content" name="content" rows="2" required></textarea>
                         <button type="button" class="btn btn-primary mt-2" id="commentCardBtn">Comentar</button>
                     </div>
+                    <div class="mb-3">
+                        <label class="form-label">Comentários</label>
+                        <ul id="comments-list" class="list-group bg-dark"></ul>
+                    </div>
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fechar</button>
@@ -215,7 +219,7 @@
             }).then(res => {
                 if (res.ok) {
                     document.getElementById('comment-content').value = '';
-                    // Aqui você pode atualizar a lista de comentários se quiser
+                    loadComments(currentCardId);
                 }
             });
         });
@@ -276,6 +280,24 @@
             document.getElementById('modal-card-description').textContent = description || '';
             var modal = new bootstrap.Modal(document.getElementById('showCardModal'));
             modal.show();
+            loadComments(cardId);
+        }
+
+        function loadComments(cardId) {
+            const commentsList = document.getElementById('comments-list');
+            commentsList.innerHTML = '<li class="list-group-item bg-dark text-light">Carregando...</li>';
+            fetch(`/cards/${cardId}/comments`)
+                .then(res => res.json())
+                .then(comments => {
+                    commentsList.innerHTML = '';
+                    if (comments.length === 0) {
+                        commentsList.innerHTML = '<li class="list-group-item bg-dark text-light">Nenhum comentário.</li>';
+                    } else {
+                        comments.forEach(comment => {
+                            commentsList.innerHTML += `<li class='list-group-item bg-dark text-light border-bottom'><span class='small text-muted'>${comment.created_at}</span><br>${comment.content}</li>`;
+                        });
+                    }
+                });
         }
     </script>
     <style>

@@ -13,5 +13,6 @@ Route::middleware(['web'])->group(function () {
     Route::post('boards/{board}/cards', [App\Http\Controllers\CardController::class, 'store'])->name('cards.store');
     Route::delete('boards/{board}/cards/{column}', [App\Http\Controllers\CardController::class, 'destroy'])->name('cards.destroy');
     Route::post('cards/{card}/comments', [App\Http\Controllers\CommentController::class, 'store'])->name('comments.store');
+    Route::get('cards/{card}/comments', [App\Http\Controllers\CommentController::class, 'list'])->name('comments.list');
     Route::delete('comments/{comment}', [App\Http\Controllers\CommentController::class, 'destroy'])->name('comments.destroy');
 });

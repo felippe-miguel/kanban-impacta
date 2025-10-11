@@ -21,6 +21,12 @@ class CommentController extends Controller
         return redirect()->back()->with('success', 'Comentário adicionado com sucesso.');
     }
 
+    public function list($cardId)
+    {
+        $comments = Comment::where('card_id', $cardId)->orderBy('created_at', 'desc')->get();
+        return response()->json($comments);
+    }
+
     public function destroy($id)
     {
         $comment = Comment::findOrFail($id);
