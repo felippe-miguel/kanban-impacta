@@ -30,7 +30,7 @@
                 </div>
                 <div class="kanban-cards" data-column-id="{{ $column->id }}">
                     @foreach ($column->cards as $card)
-                        <div class="card mb-2 text-light" draggable="true" data-card-id="{{ $card->id }}" data-column-id="{{ $column->id }}" onclick="showCardModal(`{{ addslashes($card->title) }}`, `{{ addslashes($card->description) }}`)">
+                        <div class="card mb-2 text-light" draggable="true" data-card-id="{{ $card->id }}" data-column-id="{{ $column->id }}" onclick="showCardModal(`{{ addslashes($card->title) }}`, `{{ addslashes($card->description) }}`, {{ $card->id }})">
                             <div class="card-body">
                                 <div class="card-title d-flex justify-content-between align-items-center">
                                     <strong>{{ $card->title }}</strong>
@@ -133,6 +133,11 @@
                 <div class="modal-body">
                     <h4 id="modal-card-title"></h4>
                     <p id="modal-card-description"></p>
+                    <div class="mb-3 mt-4">
+                        <label for="comment-content" class="form-label">Novo comentário</label>
+                        <textarea class="form-control" id="comment-content" name="content" rows="2" required></textarea>
+                        <button type="button" class="btn btn-primary mt-2" id="commentCardBtn">Comentar</button>
+                    </div>
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fechar</button>
@@ -145,6 +150,8 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/js/all.min.js" crossorigin="anonymous"></script>
 
     <script>
+        let currentCardId = null;
+
         document.addEventListener('DOMContentLoaded', function () {
             let draggedCard = null;
             let sourceColumnId = null;
@@ -190,6 +197,26 @@
                         }
                     }
                 });
+            });
+        });
+
+        document.getElementById('commentCardBtn').addEventListener('click', function() {
+            const content = document.getElementById('comment-content').value;
+            const token = document.querySelector('input[name="_token"]').value;
+            console.log(currentCardId, content);
+            if (!currentCardId || !content.trim()) return;
+            fetch(`/cards/${currentCardId}/comments`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': token
+                },
+                body: JSON.stringify({ content })
+            }).then(res => {
+                if (res.ok) {
+                    document.getElementById('comment-content').value = '';
+                    // Aqui você pode atualizar a lista de comentários se quiser
+                }
             });
         });
 
@@ -242,7 +269,9 @@
             window.location.href = "{{ route('boards.index') }}";
         }
 
-        function showCardModal(title, description) {
+        function showCardModal(title, description, cardId = null) {
+            currentCardId = cardId;
+            console.log('Current Card ID set to:', currentCardId);
             document.getElementById('modal-card-title').textContent = title;
             document.getElementById('modal-card-description').textContent = description || '';
             var modal = new bootstrap.Modal(document.getElementById('showCardModal'));
