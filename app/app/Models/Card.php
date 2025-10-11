@@ -17,4 +17,9 @@ class Card extends Model
     {
         return $this->belongsTo(Column::class);
     }
+
+    public function comments()
+    {
+        return $this->hasMany(Comment::class);
+    }
 }
