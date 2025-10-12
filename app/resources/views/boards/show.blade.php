@@ -294,13 +294,54 @@
                         commentsList.innerHTML = '<li class="list-group-item bg-dark text-light">Nenhum comentário.</li>';
                     } else {
                         comments.forEach(comment => {
-                            commentsList.innerHTML += `<li class='list-group-item bg-dark text-light border-bottom'><span class='small text-muted'>${comment.created_at}</span><br>${comment.content}</li>`;
+                            commentsList.innerHTML += `
+                                <li class='list-group-item bg-dark text-light border-bottom d-flex justify-content-between align-items-start'>
+                                    <div>
+                                        <span class='small text-muted'>${comment.created_at}</span><br>${comment.content}
+                                    </div>
+                                    <button class='btn btn-link text-muted p-0 ms-2' onclick='deleteComment(${comment.id})' title='Deletar comentário'>
+                                        <i class='fas fa-trash'></i>
+                                    </button>
+                                </li>
+                            `;
                         });
                     }
                 });
         }
+
+        function deleteComment(commentId) {
+            Swal.fire({
+                title: 'Tem certeza?',
+                text: 'Essa ação irá deletar o comentário permanentemente!',
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#d33',
+                cancelButtonColor: '#3085d6',
+                confirmButtonText: 'Sim, deletar!',
+                cancelButtonText: 'Cancelar'
+            }).then((result) => {
+                const token = document.querySelector('input[name="_token"]').value;
+                fetch(`/comments/${commentId}`, {
+                    method: 'DELETE',
+                    headers: {
+                        'X-CSRF-TOKEN': token
+                    }
+                }).then(res => {
+                    if (res.ok) {
+                        Swal.fire({
+                            title: 'Comentário deletado com sucesso!',
+                            icon: 'success',
+                        });
+                        loadComments(currentCardId);
+                    }
+                });
+            });
+        }
     </script>
     <style>
+        .text-muted {
+            color: #7b8691bf !important;
+        }
         .opacity-50 {
             opacity: 0.5;
         }
