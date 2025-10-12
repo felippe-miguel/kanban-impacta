@@ -12,4 +12,9 @@ class Comment extends Model
     {
         return $this->belongsTo(Card::class);
     }
+
+    public function getCreatedAtAttribute($value)
+    {
+        return date('H:i:s d-m-Y', strtotime($value));
+    }
 }
