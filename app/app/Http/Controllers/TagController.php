@@ -46,4 +46,15 @@ class TagController extends Controller
 
         return response()->json(['message' => 'Tag deletada com sucesso.']);
     }
+
+    // Remove a associação de uma tag de um card, sem deletar a tag
+    public function detach($cardId, $tagId)
+    {
+        $card = Card::findOrFail($cardId);
+        $tag = Tag::findOrFail($tagId);
+
+        $card->tags()->detach($tag->id);
+
+        return response()->json(['message' => 'Tag desassociada do card com sucesso.']);
+    }
 }

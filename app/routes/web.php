@@ -20,4 +20,6 @@ Route::middleware(['web'])->group(function () {
     Route::post('cards/{card}/tags', [App\Http\Controllers\TagController::class, 'store'])->name('tags.store');
     Route::get('cards/{card}/tags', [App\Http\Controllers\TagController::class, 'list'])->name('tags.list');
     Route::delete('tags/{tag}', [App\Http\Controllers\TagController::class, 'destroy'])->name('tags.destroy');
+    // Desassocia uma tag de um card sem deletar a tag
+    Route::delete('cards/{card}/tags/{tag}', [App\Http\Controllers\TagController::class, 'detach'])->name('tags.detach');
 });
