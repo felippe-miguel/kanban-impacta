@@ -15,4 +15,9 @@ Route::middleware(['web'])->group(function () {
     Route::post('cards/{card}/comments', [App\Http\Controllers\CommentController::class, 'store'])->name('comments.store');
     Route::get('cards/{card}/comments', [App\Http\Controllers\CommentController::class, 'list'])->name('comments.list');
     Route::delete('comments/{comment}', [App\Http\Controllers\CommentController::class, 'destroy'])->name('comments.destroy');
+
+    // Tags por card (seguir padrão das rotas de comentários)
+    Route::post('cards/{card}/tags', [App\Http\Controllers\TagController::class, 'store'])->name('tags.store');
+    Route::get('cards/{card}/tags', [App\Http\Controllers\TagController::class, 'list'])->name('tags.list');
+    Route::delete('tags/{tag}', [App\Http\Controllers\TagController::class, 'destroy'])->name('tags.destroy');
 });
