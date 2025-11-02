@@ -54,6 +54,14 @@
                                         <p class="mb-0">{{ $card->description }}</p>
                                     </div>
                                 @endif
+
+                                @if($card->tags && $card->tags->count())
+                                    <div class="card-tags mt-2">
+                                        @foreach($card->tags as $tag)
+                                            <span class="tag-badge tag-{{ $tag->type }}">{{ $tag->name }}</span>
+                                        @endforeach
+                                    </div>
+                                @endif
                             </div>
                         </div>
                     @endforeach
@@ -132,12 +140,28 @@
                 </div>
                 <div class="modal-body">
                     <h4 id="modal-card-title"></h4>
-                    <p id="modal-card-description"></p>
+
+                    <div class="mb-3">
+                        <label class="form-label">Descrição</label>
+                        <p id="modal-card-description"></p>
+                    </div>
+
+                    <div class="mb-3 d-flex flex-column">
+                        <div class="d-flex justify-content-between align-items-center mb-2">
+                            <label class="form-label mb-0">Labels</label>
+                            <button type="button" class="btn btn-sm btn-outline-light" onclick="openAddTagModal()">
+                                <i class="fas fa-plus"></i> Adicionar
+                            </button>
+                        </div>
+                        <div id="modal-tags-list" class="card-tags"></div>
+                    </div>
+
                     <div class="mb-3 mt-4">
                         <label for="comment-content" class="form-label">Novo comentário</label>
                         <textarea class="form-control" id="comment-content" name="content" rows="2" required></textarea>
                         <button type="button" class="btn btn-primary mt-2" id="commentCardBtn">Comentar</button>
                     </div>
+
                     <div class="mb-3">
                         <label class="form-label">Comentários</label>
                         <ul id="comments-list" class="list-group bg-dark"></ul>
@@ -147,6 +171,39 @@
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fechar</button>
                 </div>
             </div>
+        </div>
+    </div>
+
+    <!-- Modal Adicionar Tag ao Card -->
+    <div class="modal fade" id="addTagModal" tabindex="-1" aria-labelledby="addTagModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <form id="add-tag-form">
+                @csrf
+                <div class="modal-content bg-dark text-light">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="addTagModalLabel">Adicionar Tag ao Card</h5>
+                        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="mb-3">
+                            <label for="tag-name" class="form-label">Nome da Tag</label>
+                            <input type="text" id="tag-name" name="name" class="form-control" required />
+                        </div>
+                        <div class="mb-3">
+                            <label for="tag-type" class="form-label">Tipo</label>
+                            <select id="tag-type" name="type" class="form-select">
+                                <option value="warning" selected>warning</option>
+                                <option value="success">success</option>
+                                <option value="danger">danger</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                        <button type="submit" class="btn btn-primary">Adicionar</button>
+                    </div>
+                </div>
+            </form>
         </div>
     </div>
 
@@ -281,6 +338,7 @@
             var modal = new bootstrap.Modal(document.getElementById('showCardModal'));
             modal.show();
             loadComments(cardId);
+            loadTags(cardId);
         }
 
         function loadComments(cardId) {
@@ -308,6 +366,71 @@
                     }
                 });
         }
+
+        function loadTags(cardId) {
+            const tagsContainer = document.getElementById('modal-tags-list');
+            if (!tagsContainer) return;
+            tagsContainer.innerHTML = '<div class="small text-muted">Carregando...</div>';
+            fetch(`/cards/${cardId}/tags`)
+                .then(res => res.json())
+                .then(tags => {
+                    tagsContainer.innerHTML = '';
+                    if (!tags || tags.length === 0) {
+                        tagsContainer.innerHTML = '<div class="small text-muted">Nenhuma label.</div>';
+                        return;
+                    }
+                    tags.forEach(tag => {
+                        const span = document.createElement('span');
+                        span.className = `tag-badge tag-${tag.type}`;
+                        span.textContent = tag.name;
+                        tagsContainer.appendChild(span);
+                    });
+                }).catch(err => {
+                    tagsContainer.innerHTML = '<div class="small text-muted">Erro ao carregar labels.</div>';
+                    console.error('Error loading tags', err);
+                });
+        }
+
+        function openAddTagModal() {
+            // Require a currently selected card
+            if (!currentCardId) {
+                Swal.fire({ title: 'Erro', text: 'Nenhum card selecionado.', icon: 'error' });
+                return;
+            }
+            // reset form
+            document.getElementById('tag-name').value = '';
+            document.getElementById('tag-type').value = 'warning';
+            var modal = new bootstrap.Modal(document.getElementById('addTagModal'));
+            modal.show();
+        }
+
+        document.getElementById('add-tag-form').addEventListener('submit', function(e) {
+            e.preventDefault();
+            if (!currentCardId) return;
+            const name = document.getElementById('tag-name').value.trim();
+            const type = document.getElementById('tag-type').value;
+            if (!name) return;
+            const token = document.querySelector('input[name="_token"]').value;
+            fetch(`/cards/${currentCardId}/tags`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': token
+                },
+                body: JSON.stringify({ name, type })
+            }).then(res => res.json())
+              .then(data => {
+                  // close modal
+                  var modalEl = document.getElementById('addTagModal');
+                  var modal = bootstrap.Modal.getInstance(modalEl);
+                  if (modal) modal.hide();
+                  // reload tags in card modal
+                  loadTags(currentCardId);
+              }).catch(err => {
+                  console.error('Error adding tag', err);
+                  Swal.fire({ title: 'Erro', text: 'Não foi possível adicionar a tag.', icon: 'error' });
+              });
+        });
 
         function deleteComment(commentId) {
             Swal.fire({
@@ -405,5 +528,39 @@
             min-width: 500px;
             align-self: center;
         }
+
+        .card-tags {
+            margin: 0.5rem;
+        }
+
+        .card-tags .tag-badge {
+            padding: 0.15rem 0.5rem;
+            font-size: 0.75rem;
+            border-radius: 999px;
+            display: inline-block;
+            box-shadow: inset 0 -1px 0 rgba(0, 0, 0, 0.12);
+            line-height: 1;
+            border: 1px solid rgba(0,0,0,0.18);
+            margin-right: 0.25rem;
+        }
+
+        .card-tags .tag-badge.tag-warning {
+            background: #3b3221;
+            color: #d29922;
+            border-color: #634711;
+        }
+
+        .card-tags .tag-badge.tag-success {
+            background: #213b24;
+            color: #2bd222;
+            border-color: #116328;
+        }
+
+        .card-tags .tag-badge.tag-danger {
+            background: #3b2121;
+            color: #d56262;
+            border-color: #631111;
+        }
+
     </style>
 @endsection
