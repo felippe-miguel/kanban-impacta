@@ -380,9 +380,23 @@
                         return;
                     }
                     tags.forEach(tag => {
+                        // badge wrapper
                         const span = document.createElement('span');
                         span.className = `tag-badge tag-${tag.type}`;
                         span.textContent = tag.name;
+
+                        // remove button only inside modal
+                        const btn = document.createElement('button');
+                        btn.type = 'button';
+                        btn.className = 'tag-remove-btn';
+                        btn.title = 'Remover tag deste card';
+                        btn.innerHTML = '&times;';
+                        btn.addEventListener('click', function(e) {
+                            e.stopPropagation();
+                            detachTagFromCard(cardId, tag.id);
+                        });
+
+                        span.appendChild(btn);
                         tagsContainer.appendChild(span);
                     });
 
@@ -392,6 +406,40 @@
                     tagsContainer.innerHTML = '<div class="small text-muted">Erro ao carregar labels.</div>';
                     console.error('Error loading tags', err);
                 });
+        }
+
+        function detachTagFromCard(cardId, tagId) {
+            const token = document.querySelector('input[name="_token"]').value;
+            Swal.fire({
+                title: 'Remover tag?',
+                text: 'Deseja remover esta tag deste card?',
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonText: 'Sim, remover',
+                cancelButtonText: 'Cancelar'
+            }).then((result) => {
+                if (!result.isConfirmed) return;
+                fetch(`/cards/${cardId}/tags/${tagId}`, {
+                    method: 'DELETE',
+                    headers: {
+                        'X-CSRF-TOKEN': token,
+                        'Content-Type': 'application/json'
+                    }
+                }).then(res => {
+                    if (res.ok) {
+                        // Refresh modal tags and card tags
+                        loadTags(cardId);
+                        // Optionally, you can also remove and re-render tags on the card
+                        // by fetching tags (loadTags will call renderTagsOnCard)
+                        Swal.fire({ title: 'Tag removida', icon: 'success', timer: 900, showConfirmButton: false });
+                    } else {
+                        Swal.fire({ title: 'Erro', text: 'Não foi possível remover a tag.', icon: 'error' });
+                    }
+                }).catch(err => {
+                    console.error('Error detaching tag', err);
+                    Swal.fire({ title: 'Erro', text: 'Não foi possível remover a tag.', icon: 'error' });
+                });
+            });
         }
 
         function renderTagsOnCard(cardId, tags) {
@@ -595,6 +643,19 @@
             color: #d56262;
             border-color: #631111;
         }
+
+        /* remove button shown inside modal badges */
+        .tag-remove-btn {
+            background: transparent;
+            border: none;
+            color: rgba(255,255,255,0.85);
+            margin-left: 8px;
+            padding: 0 0.25rem;
+            font-size: 0.85rem;
+            line-height: 1;
+            cursor: pointer;
+        }
+        .tag-remove-btn:hover { color: #fff; }
 
     </style>
 @endsection
