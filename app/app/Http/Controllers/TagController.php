@@ -19,6 +19,7 @@ class TagController extends Controller
 
         $tag = Tag::firstOrCreate([
             'name' => $request->input('name'),
+            'type' => $request->input('type', 'success'),
         ]);
 
         $card->tags()->syncWithoutDetaching([$tag->id]);

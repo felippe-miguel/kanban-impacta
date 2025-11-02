@@ -34,8 +34,9 @@ class BoardController extends Controller
     public function show($id)
     {
         $board = Board::findOrFail($id);
+        // Load cards and their tags, ordering cards by recent updates
         $columns = $board->columns()->with(['cards' => function($query) {
-            $query->orderBy('updated_at', 'desc');
+            $query->with('tags')->orderBy('updated_at', 'desc');
         }])->get();
         return view('boards.show', compact('board', 'columns'));
     }
