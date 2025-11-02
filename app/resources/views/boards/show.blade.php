@@ -385,10 +385,44 @@
                         span.textContent = tag.name;
                         tagsContainer.appendChild(span);
                     });
+
+                    // Also update the card element on the board so tags appear outside the modal
+                    renderTagsOnCard(cardId, tags);
                 }).catch(err => {
                     tagsContainer.innerHTML = '<div class="small text-muted">Erro ao carregar labels.</div>';
                     console.error('Error loading tags', err);
                 });
+        }
+
+        function renderTagsOnCard(cardId, tags) {
+            try {
+                const cardEl = document.querySelector(`.card[data-card-id="${cardId}"]`);
+                if (!cardEl) return;
+                // find existing tags container inside card
+                let tagsContainer = cardEl.querySelector('.card-tags');
+                if (!tagsContainer) {
+                    // create container and insert after description if present, otherwise at end of card-body
+                    tagsContainer = document.createElement('div');
+                    tagsContainer.className = 'card-tags mt-2';
+                    const cardText = cardEl.querySelector('.card-text');
+                    if (cardText && cardText.parentNode) {
+                        cardText.parentNode.insertBefore(tagsContainer, cardText.nextSibling);
+                    } else {
+                        const cardBody = cardEl.querySelector('.card-body');
+                        cardBody.appendChild(tagsContainer);
+                    }
+                }
+                // clear and render
+                tagsContainer.innerHTML = '';
+                tags.forEach(tag => {
+                    const span = document.createElement('span');
+                    span.className = `tag-badge tag-${tag.type}`;
+                    span.textContent = tag.name;
+                    tagsContainer.appendChild(span);
+                });
+            } catch (err) {
+                console.error('Error rendering tags on card', err);
+            }
         }
 
         function openAddTagModal() {
