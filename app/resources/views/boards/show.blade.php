@@ -431,7 +431,10 @@
                         loadTags(cardId);
                         // Optionally, you can also remove and re-render tags on the card
                         // by fetching tags (loadTags will call renderTagsOnCard)
-                        Swal.fire({ title: 'Tag removida', icon: 'success', timer: 900, showConfirmButton: false });
+                        Swal.fire({
+                            title: 'Tag removida com sucesso!',
+                            icon: 'success',
+                        });
                     } else {
                         Swal.fire({ title: 'Erro', text: 'Não foi possível remover a tag.', icon: 'error' });
                     }
@@ -508,6 +511,10 @@
                   if (modal) modal.hide();
                   // reload tags in card modal
                   loadTags(currentCardId);
+                  Swal.fire({
+                            title: 'Tag adicionada com sucesso!',
+                            icon: 'success',
+                        });
               }).catch(err => {
                   console.error('Error adding tag', err);
                   Swal.fire({ title: 'Erro', text: 'Não foi possível adicionar a tag.', icon: 'error' });
