@@ -2,13 +2,13 @@
 
 namespace App\Http\Controllers;
 
+use App\Events\CardUpdated;
 use App\Models\Card;
 use App\Models\Tag;
 use Illuminate\Http\Request;
 
 class TagController extends Controller
 {
-    // Adiciona (ou reutiliza) uma tag e associa a um card
     public function store(Request $request, $cardId)
     {
         $request->validate([
@@ -23,6 +23,14 @@ class TagController extends Controller
         ]);
 
         $card->tags()->syncWithoutDetaching([$tag->id]);
+
+        CardUpdated::dispatch(
+            $card,
+            'tag_added',
+            "Tag '{$tag->name}' foi adicionada ao card.",
+            null,
+            $tag->name
+        );
 
         return response()->json($tag, 201);
     }
@@ -55,6 +63,14 @@ class TagController extends Controller
         $tag = Tag::findOrFail($tagId);
 
         $card->tags()->detach($tag->id);
+
+        CardUpdated::dispatch(
+            $card,
+            'tag_removed',
+            "Tag '{$tag->name}' foi removida do card.",
+            $tag->name,
+            null
+        );
 
         return response()->json(['message' => 'Tag desassociada do card com sucesso.']);
     }

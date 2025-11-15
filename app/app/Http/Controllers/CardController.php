@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Events\CardUpdated;
 use App\Models\Board;
 use App\Models\Card;
 use Illuminate\Http\Request;
@@ -15,11 +16,17 @@ class CardController extends Controller
 
     public function store(Request $request, $boardId)
     {
-        Card::create([
+        $card = Card::create([
             'title' => $request->input('title'),
             'description' => $request->input('description'),
             'column_id' => $request->input('column_id'),
         ]);
+
+        CardUpdated::dispatch(
+            $card,
+            'created',
+            "Card '{$card->title}' foi criado."
+        );
 
         $board = Board::findOrFail($boardId);
 
@@ -44,8 +51,21 @@ class CardController extends Controller
         ]);
 
         $card = Card::findOrFail($id);
+        $oldColumnId = $card->column_id;
 
         $card->update($request->only(['title', 'description', 'column_id']));
+
+        if ($oldColumnId !== $card->column_id) {
+            $oldColumn = $card->column()->first();
+            $newColumn = $card->column()->first();
+            CardUpdated::dispatch(
+                $card,
+                'moved',
+                "Card '{$card->title}' foi movido da coluna.",
+                $oldColumn->title,
+                $newColumn->title
+            );
+        }
 
         return response()->json(['message' => "Card with ID: $id updated successfully"]);
     }
