@@ -27,4 +27,9 @@ class Card extends Model
     {
         return $this->belongsToMany(Tag::class);
     }
+
+    public function histories()
+    {
+        return $this->hasMany(CardHistory::class);
+    }
 }
