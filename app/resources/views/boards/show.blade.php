@@ -148,7 +148,7 @@
 
                     <div class="mb-3 d-flex flex-column">
                         <div class="d-flex justify-content-between align-items-center mb-2">
-                            <label class="form-label mb-0">Labels</label>
+                            <label class="form-label mb-0">Tags</label>
                             <button type="button" class="btn btn-sm btn-outline-light" onclick="openAddTagModal()">
                                 <i class="fas fa-plus"></i> Adicionar
                             </button>
@@ -404,12 +404,10 @@
                         return;
                     }
                     tags.forEach(tag => {
-                        // badge wrapper
                         const span = document.createElement('span');
                         span.className = `tag-badge tag-${tag.type}`;
                         span.textContent = tag.name;
 
-                        // remove button only inside modal
                         const btn = document.createElement('button');
                         btn.type = 'button';
                         btn.className = 'tag-remove-btn';
@@ -424,10 +422,9 @@
                         tagsContainer.appendChild(span);
                     });
 
-                    // Also update the card element on the board so tags appear outside the modal
                     renderTagsOnCard(cardId, tags);
                 }).catch(err => {
-                    tagsContainer.innerHTML = '<div class="small text-muted">Erro ao carregar labels.</div>';
+                    tagsContainer.innerHTML = '<div class="small text-muted">Erro ao carregar tags.</div>';
                     console.error('Error loading tags', err);
                 });
         }
@@ -451,10 +448,9 @@
                     }
                 }).then(res => {
                     if (res.ok) {
-                        // Refresh modal tags and card tags
                         loadTags(cardId);
-                        // Optionally, you can also remove and re-render tags on the card
-                        // by fetching tags (loadTags will call renderTagsOnCard)
+                        loadHistory(cardId);
+
                         Swal.fire({
                             title: 'Tag removida com sucesso!',
                             icon: 'success',
@@ -472,14 +468,17 @@
         function renderTagsOnCard(cardId, tags) {
             try {
                 const cardEl = document.querySelector(`.card[data-card-id="${cardId}"]`);
+
                 if (!cardEl) return;
-                // find existing tags container inside card
+
                 let tagsContainer = cardEl.querySelector('.card-tags');
+
                 if (!tagsContainer) {
-                    // create container and insert after description if present, otherwise at end of card-body
                     tagsContainer = document.createElement('div');
                     tagsContainer.className = 'card-tags mt-2';
+
                     const cardText = cardEl.querySelector('.card-text');
+
                     if (cardText && cardText.parentNode) {
                         cardText.parentNode.insertBefore(tagsContainer, cardText.nextSibling);
                     } else {
@@ -487,7 +486,7 @@
                         cardBody.appendChild(tagsContainer);
                     }
                 }
-                // clear and render
+
                 tagsContainer.innerHTML = '';
                 tags.forEach(tag => {
                     const span = document.createElement('span');
@@ -501,12 +500,11 @@
         }
 
         function openAddTagModal() {
-            // Require a currently selected card
             if (!currentCardId) {
                 Swal.fire({ title: 'Erro', text: 'Nenhum card selecionado.', icon: 'error' });
                 return;
             }
-            // reset form
+
             document.getElementById('tag-name').value = '';
             document.getElementById('tag-type').value = 'warning';
             var modal = new bootstrap.Modal(document.getElementById('addTagModal'));
@@ -529,12 +527,12 @@
                 body: JSON.stringify({ name, type })
             }).then(res => res.json())
               .then(data => {
-                  // close modal
                   var modalEl = document.getElementById('addTagModal');
                   var modal = bootstrap.Modal.getInstance(modalEl);
                   if (modal) modal.hide();
-                  // reload tags in card modal
+
                   loadTags(currentCardId);
+                  loadHistory(currentCardId);
                   Swal.fire({
                             title: 'Tag adicionada com sucesso!',
                             icon: 'success',
@@ -593,7 +591,6 @@
                         const li = document.createElement('li');
                         li.className = 'list-group-item bg-dark text-light border-bottom';
 
-                        // Build HTML for history entry
                         let badgesHtml = '';
                         if (entry.action === 'moved' && entry.old_value && entry.new_value) {
                             badgesHtml = `
