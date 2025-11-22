@@ -81,4 +81,12 @@ class CardController extends Controller
             ->route('boards.show', compact('board', 'columns'))
             ->with('success', 'Card deletado com sucesso.');
     }
+
+    public function getHistory($cardId)
+    {
+        $card = Card::findOrFail($cardId);
+        $history = $card->histories()->orderBy('created_at', 'desc')->get();
+
+        return response()->json($history);
+    }
 }
