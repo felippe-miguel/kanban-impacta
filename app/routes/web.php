@@ -22,4 +22,7 @@ Route::middleware(['web'])->group(function () {
     Route::delete('tags/{tag}', [App\Http\Controllers\TagController::class, 'destroy'])->name('tags.destroy');
     // Desassocia uma tag de um card sem deletar a tag
     Route::delete('cards/{card}/tags/{tag}', [App\Http\Controllers\TagController::class, 'detach'])->name('tags.detach');
+
+    // Card history
+    Route::get('cards/{card}/history', [App\Http\Controllers\CardController::class, 'getHistory'])->name('cards.history');
 });
