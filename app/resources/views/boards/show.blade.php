@@ -162,9 +162,32 @@
                         <button type="button" class="btn btn-primary mt-2" id="commentCardBtn">Comentar</button>
                     </div>
 
+                    <!-- Tabbed Interface for Comments and History -->
                     <div class="mb-3">
-                        <label class="form-label">Comentários</label>
-                        <ul id="comments-list" class="list-group bg-dark"></ul>
+                        <ul class="nav nav-tabs bg-dark" id="cardTabsNav" role="tablist">
+                            <li class="nav-item" role="presentation">
+                                <button class="nav-link active text-light" id="comments-tab" data-bs-toggle="tab" data-bs-target="#comments-panel" type="button" role="tab" aria-controls="comments-panel" aria-selected="true">
+                                    <i class="fas fa-comments"></i> Comentários
+                                </button>
+                            </li>
+                            <li class="nav-item" role="presentation">
+                                <button class="nav-link text-light" id="history-tab" data-bs-toggle="tab" data-bs-target="#history-panel" type="button" role="tab" aria-controls="history-panel" aria-selected="false">
+                                    <i class="fas fa-history"></i> Histórico
+                                </button>
+                            </li>
+                        </ul>
+
+                        <div class="tab-content bg-dark p-3 border border-top-0 border-secondary" id="cardTabsContent">
+                            <!-- Comments Tab -->
+                            <div class="tab-pane fade show active" id="comments-panel" role="tabpanel" aria-labelledby="comments-tab">
+                                <ul id="comments-list" class="list-group bg-dark"></ul>
+                            </div>
+
+                            <!-- History Tab -->
+                            <div class="tab-pane fade" id="history-panel" role="tabpanel" aria-labelledby="history-tab">
+                                <ul id="history-list" class="list-group bg-dark"></ul>
+                            </div>
+                        </div>
                     </div>
                 </div>
                 <div class="modal-footer">
@@ -339,6 +362,7 @@
             modal.show();
             loadComments(cardId);
             loadTags(cardId);
+            loadHistory(cardId);
         }
 
         function loadComments(cardId) {
@@ -549,6 +573,88 @@
                 });
             });
         }
+
+        function loadHistory(cardId) {
+            const historyList = document.getElementById('history-list');
+            if (!historyList) return;
+            historyList.innerHTML = '<li class="list-group-item bg-dark text-light">Carregando...</li>';
+            fetch(`/cards/${cardId}/history`)
+                .then(res => res.json())
+                .then(history => {
+                    historyList.innerHTML = '';
+                    if (!history || history.length === 0) {
+                        historyList.innerHTML = '<li class="list-group-item bg-dark text-light">Nenhum histórico.</li>';
+                        return;
+                    }
+                    history.forEach(entry => {
+                        const actionText = getActionText(entry.action, entry.description);
+                        const actionLabel = getActionLabel(entry.action);
+                        const timeStr = new Date(entry.created_at).toLocaleString('pt-BR');
+                        const li = document.createElement('li');
+                        li.className = 'list-group-item bg-dark text-light border-bottom';
+
+                        // Build HTML for history entry
+                        let badgesHtml = '';
+                        if (entry.action === 'moved' && entry.old_value && entry.new_value) {
+                            badgesHtml = `
+                                <div class="mt-2">
+                                    <span class="badge bg-warning text-dark me-2">${entry.old_value}</span>
+                                    <i class="fas fa-arrow-right text-muted"></i>
+                                    <span class="badge bg-info text-dark ms-2">${entry.new_value}</span>
+                                </div>
+                            `;
+                        }
+
+                        li.innerHTML = `
+                            <div class="d-flex justify-content-between align-items-start">
+                                <div style="flex-grow: 1;">
+                                    <span class="badge ${actionLabel.class}">${actionLabel.title}</span>
+                                    <p class="mb-1 mt-2">${actionText}</p>
+                                    ${badgesHtml}
+                                    <span class="small text-muted">${timeStr}</span>
+                                </div>
+                            </div>
+                        `;
+                        historyList.appendChild(li);
+                    });
+                }).catch(err => {
+                    historyList.innerHTML = '<li class="list-group-item bg-dark text-light">Erro ao carregar histórico.</li>';
+                    console.error('Error loading history', err);
+                });
+        }
+
+        function getActionText(action, description) {
+            if (description) return description;
+            const actionMap = {
+                'created': 'Card foi criado',
+                'moved': 'Card foi movido de coluna',
+                'tag_added': 'Tag foi adicionada',
+                'tag_removed': 'Tag foi removida'
+            };
+            return actionMap[action] || `Ação: ${action}`;
+        }
+
+        function getActionLabel(action) {
+            const actionMap = {
+                'created': {
+                    title: 'Card criado',
+                    class: 'bg-success text-light'
+                },
+                'moved': {
+                    title: 'Card movido',
+                    class: 'bg-secondary text-light'
+                },
+                'tag_added': {
+                    title: 'Tag adicionada',
+                    class: 'bg-success text-light'
+                },
+                'tag_removed': {
+                    title: 'Tag removida',
+                    class: 'bg-danger text-light'
+                }
+            };
+            return actionMap[action] || `Ação: ${action}`;
+        }
     </script>
     <style>
         .text-muted {
@@ -663,6 +769,38 @@
             cursor: pointer;
         }
         .tag-remove-btn:hover { color: #fff; }
+
+        /* Tabs styling */
+        .nav-tabs {
+            border-bottom: 1px solid #495057;
+        }
+
+        .nav-tabs .nav-link {
+            border: 1px solid transparent;
+            border-bottom: none;
+            color: rgba(255,255,255,0.7) !important;
+            background-color: #2d2e37;
+            border-radius: 0.375rem 0.375rem 0 0;
+        }
+
+        .nav-tabs .nav-link:hover {
+            border-color: #495057;
+            color: #fff !important;
+        }
+
+        .nav-tabs .nav-link.active {
+            color: #fff !important;
+            background-color: #212529;
+            border-color: #495057 #495057 #212529;
+        }
+
+        .tab-content {
+            border-radius: 0 0 0.375rem 0.375rem;
+        }
+
+        .tab-pane {
+            min-height: 300px;
+        }
 
     </style>
 @endsection
