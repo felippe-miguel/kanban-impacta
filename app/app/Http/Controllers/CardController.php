@@ -53,17 +53,23 @@ class CardController extends Controller
         $card = Card::findOrFail($id);
         $oldColumnId = $card->column_id;
 
+        // Get old column title BEFORE update
+        $oldColumn = $card->column()->first();
+        $oldColumnTitle = $oldColumn ? $oldColumn->title : 'Coluna desconhecida';
+
         $card->update($request->only(['title', 'description', 'column_id']));
 
         if ($oldColumnId !== $card->column_id) {
-            $oldColumn = $card->column()->first();
+            // Get new column title AFTER update
             $newColumn = $card->column()->first();
+            $newColumnTitle = $newColumn ? $newColumn->title : 'Coluna desconhecida';
+
             CardUpdated::dispatch(
                 $card,
                 'moved',
-                "Card '{$card->title}' foi movido da coluna.",
-                $oldColumn->title,
-                $newColumn->title
+                "Card '{$card->title}' foi movido de coluna.",
+                $oldColumnTitle,
+                $newColumnTitle
             );
         }
 
